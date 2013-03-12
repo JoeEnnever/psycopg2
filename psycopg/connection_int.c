@@ -342,9 +342,14 @@ conn_read_encoding(connectionObject *self, PGconn *pgconn)
     tmp = PQparameterStatus(pgconn, "client_encoding");
     Dprintf("conn_connect: client encoding: %s", tmp ? tmp : "(none)");
     if (!tmp) {
-        PyErr_SetString(OperationalError,
-            "server didn't return client encoding");
-        goto exit;
+        if(self->server_version == 0 && self->protocol == 3) {  /* vertica */
+            tmp = strdup("UTF8");
+        }    
+        else {
+            PyErr_SetString(OperationalError,
+                "server didn't return client encoding");
+            goto exit;
+        }
     }
 
     if (0 > clear_encoding_name(tmp, &enc)) {

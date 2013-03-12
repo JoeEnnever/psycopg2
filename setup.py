@@ -48,7 +48,11 @@ import os
 import sys
 import re
 import subprocess
-from distutils.core import setup, Extension
+try:
+  from setuptools import setup
+except:
+  from distutils.core import setup
+from distutils.core import Extension
 from distutils.command.build_ext import build_ext
 from distutils.sysconfig import get_python_inc
 from distutils.ccompiler import get_default_compiler
