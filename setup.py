@@ -539,7 +539,7 @@ download_url = (
     "http://initd.org/psycopg/tarballs/PSYCOPG-%s/psycopg2-%s.tar.gz"
     % ('-'.join(PSYCOPG_VERSION.split('.')[:2]), PSYCOPG_VERSION))
 
-setup(name="psycopg2",
+setup(name="psycopg2-vertica",
       version=PSYCOPG_VERSION,
       maintainer="Federico Di Gregorio",
       maintainer_email="fog@initd.org",

@@ -1293,12 +1293,12 @@ static PyObject *
 psyco_curs_copy_from(cursorObject *self, PyObject *args, PyObject *kwargs)
 {
     static char *kwlist[] = {
-            "file", "table", "sep", "null", "size", "columns", "abort_on_error", NULL};
+            "file", "table", "sep", "null", "size", "columns", NULL};
 
     const char *sep = "\t";
     const char *null = "\\N";
     const char *command =
-        "COPY %s%s FROM stdin WITH DELIMITER AS %s NULL AS %s %s";
+        "COPY %s%s FROM stdin WITH DELIMITER AS %s NULL AS %s";
 
     Py_ssize_t query_size;
     char *query = NULL;
@@ -1308,18 +1308,15 @@ psyco_curs_copy_from(cursorObject *self, PyObject *args, PyObject *kwargs)
 
     const char *table_name;
     Py_ssize_t bufsize = DEFAULT_COPYBUFF;
-    Py_ssize_t abort_bool = 0;
     PyObject *file, *columns = NULL, *res = NULL;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs,
-        "O&s|ss" CONV_CODE_PY_SSIZE_T "O" CONV_CODE_PY_SSIZE_T, kwlist,
+        "O&s|ss" CONV_CODE_PY_SSIZE_T "O", kwlist,
         _psyco_curs_has_read_check, &file, &table_name, &sep, &null, &bufsize,
-        &columns, &abort_bool))
+        &columns))
     {
         return NULL;
     }
-
-    char *abort_on_error = abort_on_error == 0 ? "" : "ABORT ON ERROR";
 
     EXC_IF_CURS_CLOSED(self);
     EXC_IF_CURS_ASYNC(self, copy_from);
@@ -1342,14 +1339,14 @@ psyco_curs_copy_from(cursorObject *self, PyObject *args, PyObject *kwargs)
     }
 
     query_size = strlen(command) + strlen(table_name) + strlen(columnlist)
-        + strlen(quoted_delimiter) + strlen(quoted_null) + strlen(abort_on_error) + 1;
+        + strlen(quoted_delimiter) + strlen(quoted_null) + 1;
     if (!(query = PyMem_New(char, query_size))) {
         PyErr_NoMemory();
         goto exit;
     }
 
     PyOS_snprintf(query, query_size, command,
-        table_name, columnlist, quoted_delimiter, quoted_null, abort_on_error);
+        table_name, columnlist, quoted_delimiter, quoted_null);
 
     Dprintf("psyco_curs_copy_from: query = %s", query);
 
